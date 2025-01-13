@@ -1,0 +1,121 @@
+1º creamos enviroment
+
+python3 -m venv myenv
+source myenv/bin/activate
+pip install kafka-python six
+
+nano codec.py ==> from six.moves import range
+
+2º Ejecutar codigo:
+
+Ordenador 1
+python3 EC_Central.py <port> <kafka_broker_ip:port>
+
+python3 EC_Command_Client.py <EC_Central ip> <EC_Central port>
+
+
+Ordenador 2
+python3 EC_DE.py <EC_Central IP> <EC_Central Port> <Sensor IP:PUERTO> <Broker IP:Port> <Taxi ID>
+
+chmod +x deploy_taxis.sh
+./deploy_taxis.sh
+
+python3 EC_S.py <IP:PUERTO>
+
+Ordenador 3
+
+python3 EC_Customer.py <Broker IP:Port> <Archivo EC_Request.json> <Posición (formato: x,y)>
+
+
+
+KAFKA
+1º cambio en server.properties
+2º iniciar zookeper y kafka
+3º crear topics:
+
+bin/kafka-topics.sh --create --topic map_update --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1
+bin/kafka-topics.sh --create --topic sensor_updates --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1
+bin/kafka-topics.sh --create --topic service_requests --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1
+bin/kafka-topics.sh --create --topic service_responses --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1
+bin/kafka-topics.sh --create --topic taxi_assignments --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1
+bin/kafka-topics.sh --create --topic taxi_updates --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1
+
+
+
+-------------------------------------------- RELEASE 2 -------------------------------------------
+
+pip install confluent-kafka
+**creo que no hace falta ninguna librería más (porque son las 5 a.m y no me acuerdo)**
+
+config. KAFKA
+Poner en server.properties:
+
+listeners = SSL://localhost:9093
+ssl.keystore.location=/home/mario/Escritorio/Distributed-Systems/certificados/kafka.server.keystore.jks
+ssl.keystore.password=test1234
+ssl.key.password=test1234
+ssl.truststore.location=/home/mario/Escritorio/Distributed-Systems/certificados/kafka.server.truststore.jks
+ssl.truststore.password=test1234
+security.inter.broker.protocol=SSL
+ssl.endpoint.identification.algorithm=
+advertised.listeners=SSL://localhost:9093
+
+CREAR TOPICS:
+
+bin/kafka-topics.sh --create --topic map_update --partitions 1     --replication-factor 1 --bootstrap-server "$1":9093     --command-config /home/mario/Escritorio/Distributed-Systems/certificados/topics-key
+bin/kafka-topics.sh --create --topic sensor_updates --partitions 1     --replication-factor 1 --bootstrap-server "$1":9093     --command-config /home/mario/Escritorio/Distributed-Systems/certificados/topics-key
+bin/kafka-topics.sh --create --topic service_requests --partitions 1     --replication-factor 1 --bootstrap-server "$1":9093     --command-config /home/mario/Escritorio/Distributed-Systems/certificados/topics-key
+bin/kafka-topics.sh --create --topic service_responses --partitions 1     --replication-factor 1 --bootstrap-server "$1":9093     --command-config /home/mario/Escritorio/Distributed-Systems/certificados/topics-key
+bin/kafka-topics.sh --create --topic taxi_commands --partitions 1     --replication-factor 1 --bootstrap-server "$1":9093     --command-config /home/mario/Escritorio/Distributed-Systems/certificados/topics-key
+bin/kafka-topics.sh --create --topic taxi_assignments --partitions 1     --replication-factor 1 --bootstrap-server "$1":9093     --command-config /home/mario/Escritorio/Distributed-Systems/certificados/topics-key
+bin/kafka-topics.sh --create --topic taxi_updates --partitions 1     --replication-factor 1 --bootstrap-server "$1":9093     --command-config /home/mario/Escritorio/Distributed-Systems/certificados/topics-key
+bin/kafka-topics.sh --create --topic traffic_updates --partitions 1     --replication-factor 1 --bootstrap-server "$1":9093     --command-config /home/mario/Escritorio/Distributed-Systems/certificados/topics-key
+
+
+EJECUTAR
+
+
+python3 API_CENTRAL.py
+python3 EC_CTC.py
+python3 EC_Registry.py
+
+python3 EC_S.py <IP:PUERTO>
+python3 EC_DE.py 127.0.0.1 5050 localhost:5051 localhost:9093 1
+python3 EC_Customer.py localhost:9093 EC_Request_1.json Posición 5,5
+python3 EC_Central.py 5050 localhost:9093
+python3 EC_Command_Client.py <EC_Central ip> <EC_Central port>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+curl -k --cert client.crt --key client.key --cacert ca.crt \
+     -X GET https://registry.local:5001/status/1
+
+
+curl -k --cert client.crt --key client.key --cacert ca.crt \
+     -X DELETE https://registry.local:5001/unregister/1
+
+
+curl -k --cert client.crt --key client.key --cacert ca.crt \
+     -X POST https://registry.local:5001/register \
+     -H "Content-Type: application/json" \
+     -d '{"taxi_id": "1"}'
+
+
+COSAS QUE INSTALAR EN EL ENV:
+pip install cryptography
+

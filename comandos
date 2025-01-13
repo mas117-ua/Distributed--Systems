@@ -1,0 +1,34 @@
+KAFKA
+1º cambio en server.properties
+2º iniciar zookeper y kafka
+bin/zookeeper-server-start.sh config/zookeeper.properties
+bin/kafka-server-start.sh config/server.properties
+
+3º crear topics:
+
+bin/kafka-topics.sh --create --topic map_update --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1
+bin/kafka-topics.sh --create --topic sensor_updates --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1
+bin/kafka-topics.sh --create --topic service_requests --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1
+bin/kafka-topics.sh --create --topic service_responses --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1
+bin/kafka-topics.sh --create --topic taxi_assignments --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1
+bin/kafka-topics.sh --create --topic taxi_updates --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1
+
+
+python3 EC_Registry.py
+(uno u otro)
+node EC_Registry.js
+
+python3 EC_S.py <IP:PUERTO>
+python3 EC_DE.py 127.0.0.1 5050 localhost:5051 localhost:9092 1
+python3 EC_Customer.py localhost:9092 EC_Request_1.json Posición 5,5
+python3 EC_Central.py 5050 localhost:9092
+python3 EC_Command_Client.py <EC_Central ip> <EC_Central port>
+
+poner el registry.local
+
+
+instalar flask
+pip install flask flask-socketio
+
+python3 API_Central.py
+
