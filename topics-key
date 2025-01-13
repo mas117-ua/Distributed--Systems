@@ -1,0 +1,5 @@
+security.protocol=SSL
+ssl.truststore.location=/home/mario/Escritorio/Distributed-Systems/certificados/kafka.client.truststore.jks
+ssl.truststore.password=test1234
+ssl.endpoint.identification.algorithm=
+
